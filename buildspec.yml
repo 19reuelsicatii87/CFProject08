@@ -1,0 +1,78 @@
+version: 0.2
+
+env:
+  variables:
+    CF_HOME: "/opt/coldfusion2025"
+    CF_WEBROOT: "/opt/coldfusion2025/cfusion/wwwroot"
+    CF_BIN: "/opt/coldfusion2025/cfusion/bin"
+    CODEDEPLOY_STAGING: "/opt/codedeploy/cf-app"
+    COLDBOX_APP_DIR: "."
+    CDEPLOY_DIR: "cdeDeploy"
+    DEPLOY_BUNDLE_DIR: "codedeploy-bundle"
+
+phases:
+  install:
+    commands:
+      - echo "=== Install phase ==="
+      - curl -fsSL https://downloads.ortussolutions.com/debs/RPM-GPG-KEY-ortussolutions | sudo rpm --import -
+      - sudo curl -fsSL https://downloads.ortussolutions.com/debs/ortussolutions.repo -o /etc/yum.repos.d/ortussolutions.repo
+      - sudo dnf install -y commandbox rsync
+      - box version
+
+  pre_build:
+    commands:
+      - echo "=== Pre-build ==="
+      - test -f box.json
+      - box install --production
+      - test -d lib/coldbox
+
+  build:
+    commands:
+      - echo "=== Build ==="
+      - rm -rf "${DEPLOY_BUNDLE_DIR}"
+      - mkdir -p "${DEPLOY_BUNDLE_DIR}/scripts"
+      - |
+        rsync -a \
+          --exclude '.git/' \
+          --exclude '.gitignore' \
+          --exclude '.gitattributes' \
+          --exclude 'tests/' \
+          --exclude 'lib/testbox/' \
+          --exclude 'lib/modules/route-visualizer/' \
+          --exclude '.engine/' \
+          --exclude '.env' \
+          --exclude '.env.example' \
+          --exclude 'runtime/logs/' \
+          --exclude 'app/logs/' \
+          --exclude 'build/' \
+          --exclude 'build/.db/' \
+          --exclude '.tmp/' \
+          --exclude '.devcontainer/' \
+          --exclude 'docker/' \
+          --exclude 'public/includes/build/' \
+          --exclude '.vscode/' \
+          --exclude "${DEPLOY_BUNDLE_DIR}/" \
+          --exclude 'cdeDeploy/' \
+          ./ "${DEPLOY_BUNDLE_DIR}/"
+      - cp "${DEPLOY_BUNDLE_DIR}/public/index.bxm" "${DEPLOY_BUNDLE_DIR}/index.bxm"
+      - cp "${DEPLOY_BUNDLE_DIR}/public/Application.bx" "${DEPLOY_BUNDLE_DIR}/Application.bx"
+      - test -f "${DEPLOY_BUNDLE_DIR}/public/robots.txt" && cp "${DEPLOY_BUNDLE_DIR}/public/robots.txt" "${DEPLOY_BUNDLE_DIR}/robots.txt" || true
+      - cp "${CDEPLOY_DIR}/appspec.yml" "${DEPLOY_BUNDLE_DIR}/appspec.yml"
+      - cp "${CDEPLOY_DIR}/scripts/sync-to-wwwroot.sh" "${DEPLOY_BUNDLE_DIR}/scripts/sync-to-wwwroot.sh"
+      - chmod +x "${DEPLOY_BUNDLE_DIR}/scripts/sync-to-wwwroot.sh"
+      - test -f "${DEPLOY_BUNDLE_DIR}/appspec.yml"
+      - test -f "${DEPLOY_BUNDLE_DIR}/scripts/sync-to-wwwroot.sh"
+      - test -f "${DEPLOY_BUNDLE_DIR}/index.bxm"
+      - test -f "${DEPLOY_BUNDLE_DIR}/Application.bx"
+      - test -d "${DEPLOY_BUNDLE_DIR}/lib/coldbox"
+      - test -d "${DEPLOY_BUNDLE_DIR}/app"
+      - test -f "${DEPLOY_BUNDLE_DIR}/runtime/boxlang.json"
+
+  post_build:
+    commands:
+      - echo "=== Post-build — artifact ready ==="
+
+artifacts:
+  base-directory: codedeploy-bundle
+  files:
+    - '**/*'

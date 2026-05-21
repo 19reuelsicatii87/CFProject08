@@ -1,0 +1,18 @@
+version: 0
+os: linux
+files:
+  - source: /
+    destination: /opt/codedeploy/cf-app
+permissions:
+  - object: /opt/codedeploy/cf-app
+    pattern: '**'
+    mode: '0755'
+    owner: cf_svc
+    group: cf_svc
+    type:
+      - file
+      - directory
+hooks:
+  ApplicationStart:
+    - location: scripts/sync-to-wwwroot.sh
+      timeout: 300
