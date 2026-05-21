@@ -14,8 +14,7 @@ phases:
   install:
     commands:
       - echo "=== Install phase ==="
-      - sudo rpm --import https://downloads.ortussolutions.com/RPM-GPG-KEY-ortussolutions
-      - sudo curl -fsSL https://downloads.ortussolutions.com/ortussolutions.repo -o /etc/yum.repos.d/ortussolutions.repo
+      - printf '%s\n' '[CommandBox]' 'name=CommandBox' 'baseurl=https://downloads.ortussolutions.com/RPMS/noarch' 'enabled=1' 'gpgcheck=0' | sudo tee /etc/yum.repos.d/commandbox.repo >/dev/null
       - sudo dnf install -y commandbox rsync
       - box version
 
