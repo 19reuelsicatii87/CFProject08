@@ -7,7 +7,6 @@ env:
     CF_BIN: "/opt/coldfusion2025/cfusion/bin"
     CODEDEPLOY_STAGING: "/opt/codedeploy/cf-app"
     COLDBOX_APP_DIR: "."
-    CDEPLOY_DIR: "cdeDeploy"
     DEPLOY_BUNDLE_DIR: "codedeploy-bundle"
 
 phases:
@@ -22,6 +21,8 @@ phases:
     commands:
       - echo "=== Pre-build ==="
       - test -f box.json
+      - test -f appspec.yml
+      - test -f scripts/sync-to-wwwroot.sh
       - box install --production
       - test -d lib/coldbox
 
@@ -51,13 +52,14 @@ phases:
           --exclude 'public/includes/build/' \
           --exclude '.vscode/' \
           --exclude "${DEPLOY_BUNDLE_DIR}/" \
-          --exclude 'cdeDeploy/' \
+          --exclude 'appspec.yml' \
+          --exclude 'scripts/' \
           ./ "${DEPLOY_BUNDLE_DIR}/"
+      - cp appspec.yml "${DEPLOY_BUNDLE_DIR}/appspec.yml"
+      - cp scripts/sync-to-wwwroot.sh "${DEPLOY_BUNDLE_DIR}/scripts/sync-to-wwwroot.sh"
       - cp "${DEPLOY_BUNDLE_DIR}/public/index.bxm" "${DEPLOY_BUNDLE_DIR}/index.bxm"
       - cp "${DEPLOY_BUNDLE_DIR}/public/Application.bx" "${DEPLOY_BUNDLE_DIR}/Application.bx"
       - test -f "${DEPLOY_BUNDLE_DIR}/public/robots.txt" && cp "${DEPLOY_BUNDLE_DIR}/public/robots.txt" "${DEPLOY_BUNDLE_DIR}/robots.txt" || true
-      - cp "${CDEPLOY_DIR}/appspec.yml" "${DEPLOY_BUNDLE_DIR}/appspec.yml"
-      - cp "${CDEPLOY_DIR}/scripts/sync-to-wwwroot.sh" "${DEPLOY_BUNDLE_DIR}/scripts/sync-to-wwwroot.sh"
       - chmod +x "${DEPLOY_BUNDLE_DIR}/scripts/sync-to-wwwroot.sh"
       - test -f "${DEPLOY_BUNDLE_DIR}/appspec.yml"
       - test -f "${DEPLOY_BUNDLE_DIR}/scripts/sync-to-wwwroot.sh"
