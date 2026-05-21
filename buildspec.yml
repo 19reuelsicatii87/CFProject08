@@ -14,8 +14,8 @@ phases:
   install:
     commands:
       - echo "=== Install phase ==="
-      - curl -fsSL https://downloads.ortussolutions.com/debs/RPM-GPG-KEY-ortussolutions | sudo rpm --import -
-      - sudo curl -fsSL https://downloads.ortussolutions.com/debs/ortussolutions.repo -o /etc/yum.repos.d/ortussolutions.repo
+      - sudo rpm --import https://downloads.ortussolutions.com/RPM-GPG-KEY-ortussolutions
+      - sudo curl -fsSL https://downloads.ortussolutions.com/ortussolutions.repo -o /etc/yum.repos.d/ortussolutions.repo
       - sudo dnf install -y commandbox rsync
       - box version
 
