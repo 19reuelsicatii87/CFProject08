@@ -13,10 +13,7 @@ CODEDEPLOY_STAGING=/opt/codedeploy/cf-app
 
 mkdir -p "${NEW_RELEASE}"
 
-rsync -a --delete 
---exclude 'appspec.yml' 
---exclude 'scripts/' 
-"${CODEDEPLOY_STAGING}/" "${NEW_RELEASE}/"
+rsync -a --delete --exclude 'appspec.yml' --exclude 'scripts/' "${CODEDEPLOY_STAGING}/" "${NEW_RELEASE}/"
 
 chown -R cf_svc:cf_svc "${NEW_RELEASE}"
 
