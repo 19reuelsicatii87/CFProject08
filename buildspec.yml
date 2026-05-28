@@ -62,7 +62,9 @@ phases:
       - test -f "${DEPLOY_BUNDLE_DIR}/public/robots.txt" && cp "${DEPLOY_BUNDLE_DIR}/public/robots.txt" "${DEPLOY_BUNDLE_DIR}/robots.txt" || true
       - chmod +x "${DEPLOY_BUNDLE_DIR}/scripts/sync-to-wwwroot.sh"
       - test -f "${DEPLOY_BUNDLE_DIR}/appspec.yml"
-      - test -f "${DEPLOY_BUNDLE_DIR}/scripts/sync-to-wwwroot.sh"
+      - test -f "${DEPLOY_BUNDLE_DIR}/scripts/before-install.sh"
+      - test -f "${DEPLOY_BUNDLE_DIR}/scripts/deploy-release.sh"
+      - test -f "${DEPLOY_BUNDLE_DIR}/scripts/restart-coldfusion.sh"
       - test -f "${DEPLOY_BUNDLE_DIR}/index.bxm"
       - test -f "${DEPLOY_BUNDLE_DIR}/Application.bx"
       - test -d "${DEPLOY_BUNDLE_DIR}/lib/coldbox"
